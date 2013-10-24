@@ -209,12 +209,12 @@ class MyParser {
         /* Fill in code here (you will probably need to write auxiliary
             methods). */
 
-try 
+				try 
         {
 	        FileWriter userStream = new FileWriter("users-temp.csv", true);
-	        FileWriter itemStream = new FileWriter("items.csv");
-	        FileWriter categoryStream = new FileWriter("category.csv");
-	        FileWriter bidStream = new FileWriter("bids.csv");
+	        FileWriter itemStream = new FileWriter("items.csv", true);
+	        FileWriter categoryStream = new FileWriter("category.csv", true);
+	        FileWriter bidStream = new FileWriter("bids.csv", true);
 	        
 					BufferedWriter userOut = new BufferedWriter(userStream);
 					BufferedWriter itemOut = new BufferedWriter(itemStream);
@@ -268,9 +268,9 @@ try
 							String bidTime = convertTime(getElementTextByTagNameNR(currBid, "Time"));
 							String bidAmount = strip(getElementTextByTagNameNR(currBid, "Amount"));
 							
-							userOut.append(bidder + "," + b_location + "," + "\"" + b_country + "\"," + "\"" + bidderRating + "\"" + '\n');
+							userOut.append(bidder + "," + "\"" + b_location + "\"," + "\"" + b_country + "\"," + bidderRating + '\n');
 							
-							bidOut.append(itemID + ", " + bidder + "," + bidTime + "," + bidAmount + '\n');
+							bidOut.append(itemID + "," + bidder + "," + bidTime + "," + bidAmount + '\n');
 							
 		        	currBid = (Element) currBid.getNextSibling();
 		        }
@@ -278,7 +278,7 @@ try
 		        
 						itemOut.append(itemID + "," + username + "," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + "," + "\"" + description + "\"" + '\n');
 						
-						userOut.append(username + "," + location + "," + "\"" + country + "\"," + "\"" + userRating + "\"" + '\n');
+						userOut.append(username + "," + "\"" + location + "\"," + "\"" + country + "\"," + userRating + '\n');
 					
 						currItem = (Element) currItem.getNextSibling();
 	        }

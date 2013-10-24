@@ -215,7 +215,7 @@ class MyParserPrint {
         
         try 
         {
-	        FileWriter userStream = new FileWriter("users.csv", true);
+	        FileWriter userStream = new FileWriter("users-temp.csv", true);
 	        FileWriter itemStream = new FileWriter("items.csv");
 	        FileWriter categoryStream = new FileWriter("category.csv");
 	        FileWriter bidStream = new FileWriter("bids.csv");
@@ -232,6 +232,8 @@ class MyParserPrint {
 	        	//do stuff
       
 		        String itemName = getElementTextByTagNameNR(currItem, "Name");
+		        itemName = itemName.replace("\"","\\\"");
+		        
 		        int itemID = Integer.parseInt(currItem.getAttributes().item(0).getNodeValue());
 		        String currVal = strip(getElementTextByTagNameNR(currItem, "Currently"));
 						String firstBid = strip(getElementTextByTagNameNR(currItem, "First_Bid"));
@@ -270,7 +272,7 @@ class MyParserPrint {
 							String bidTime = convertTime(getElementTextByTagNameNR(currBid, "Time"));
 							String bidAmount = strip(getElementTextByTagNameNR(currBid, "Amount"));
 							
-							userOut.append(bidder + ", " + bidderRating + ", " + "\"" + b_location + "\", " + "\"" + b_country + "\"" + '\n');
+							userOut.append(bidder + "," + bidderRating + "," + "\"" + b_location + "\"," + "\"" + b_country + "\"" + '\n');
 							
 							bidOut.append(itemID + ", " + bidder + ", " + bidTime + ", " + bidAmount + '\n');
 							
@@ -278,9 +280,9 @@ class MyParserPrint {
 		        }
 		        
 		        
-						itemOut.append(itemID + ", " + username + ", " + "\"" + itemName + "\"" + ", " + currVal + ", " + firstBid + ", " + buyPrice + ", " + numBids + ", " + startTime + ", " + endTime + ", " + "\"" + description + "\"" + '\n');
+						itemOut.append(itemID + "," + username + "," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + "," + "\"" + description + "\"" + '\n');
 						
-						userOut.append(username + ", " + userRating + ", " + "\"" + location + "\", " + "\"" + country + "\"" + '\n');
+						userOut.append(username + "," + userRating + "," + "\"" + location + "\"," + "\"" + country + "\"" + '\n');
 					
 						currItem = (Element) currItem.getNextSibling();
 	        }
