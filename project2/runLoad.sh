@@ -18,8 +18,8 @@ sort -u -t, -k1,1 users-temp.csv > users.csv
 # Run the load.sql batch file to load the data
 mysql CS144 < load.sql
 
-#rm users-temp.csv
-#rm users.csv
-#rm items.csv
-#rm bids.csv
-#rm category.csv
+rm users-temp.csv
+rm users.csv
+rm items.csv
+rm bids.csv
+rm category.csv
