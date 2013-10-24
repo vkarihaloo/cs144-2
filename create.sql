@@ -1,12 +1,28 @@
-CREATE TABLE Items (
-	id INT PRIMARY KEY, 
-	seller VARCHAR(50),
-	name VARCHAR(100), 
-	currently DECIMAL(8,2), 
-	firstbid DECIMAL(8,2), 
-	buyprice DECIMAL(8,2), 
-	started TIMESTAMP, 
-	ends TIMESTAMP, 
-	description VARCHAR(4000));
+DROP TABLE IF EXISTS Users, Items, Bids
 
 CREATE TABLE Users (
+	UsersID VARCHAR(50) PRIMARY KEY,
+	Location VARCHAR(100),
+	Country VARCHAR(100),
+	Rating INT
+	);
+
+CREATE TABLE Items (
+	ItemID INT PRIMARY KEY, 
+	SellerID VARCHAR(50),
+	Name VARCHAR(100), 
+	Currently DECIMAL(8,2), 
+	First_Bid DECIMAL(8,2), 
+	Buy_Price DECIMAL(8,2),
+	Number_of_Bids INT, 
+	Started TIMESTAMP, 
+	Ends TIMESTAMP, 
+	Description VARCHAR(4000)
+	);
+
+CREATE TABLE Bids (
+	ItemID INT PRIMARY KEY,
+	BidderID VARCHAR(50),
+	Time TIMESTAMP,
+	Amount DECIMAL(8,2)
+	);
