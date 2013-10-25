@@ -172,7 +172,7 @@ class MyParser {
     	try
 		  {
 				SimpleDateFormat oldformat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
-				SimpleDateFormat newformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				SimpleDateFormat newformat = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 			        
 				timeString = newformat.format(oldformat.parse(timeString));
 			}
@@ -186,7 +186,7 @@ class MyParser {
     
     public static String escapeString(String input)
     {
-    	input = input.replaceAll("\"","\\\\\"");
+    	input = input.replace("\"","\\\"");
     	return input;
     } 
     /* Process one items-???.xml file.
@@ -256,7 +256,7 @@ class MyParser {
 			
 						String userRating = userinfo.getAttributes().item(0).getNodeValue();
 						String location = escapeString(getElementTextByTagNameNR(currItem, "Location"));
-						String country = escapeString(getElementTextByTagNameNR(currItem, "Country"));
+						String country = getElementTextByTagNameNR(currItem, "Country");
 								        
         		
         		Element[] categories = getElementsByTagNameNR(currItem, "Category");
@@ -272,26 +272,25 @@ class MyParser {
 		        while (currBid != null)
 		        {
 		        	Element bidderInfo = getElementByTagNameNR(currBid, "Bidder");
-							String bidder = escapeString(bidderInfo.getAttributes().item(1).getNodeValue());
+							String bidder = bidderInfo.getAttributes().item(1).getNodeValue();
 							String bidderRating = bidderInfo.getAttributes().item(0).getNodeValue();
 							String b_location = escapeString(getElementTextByTagNameNR(bidderInfo, "Location"));
-							String b_country = escapeString(getElementTextByTagNameNR(bidderInfo, "Country"));
+							String b_country = getElementTextByTagNameNR(bidderInfo, "Country");
 							
 							String bidTime = convertTime(getElementTextByTagNameNR(currBid, "Time"));
 							String bidAmount = strip(getElementTextByTagNameNR(currBid, "Amount"));
 							
-							userOut.append("\"" + bidder + "\"" + columnSeparator + "\"" + b_location + "\"" + columnSeparator + "\"" + b_country + "\"" + columnSeparator + bidderRating + '\n');
+							userOut.append("\"" + bidder + "\"," + "\"" + b_location + "\"," + "\"" + b_country + "\"," + bidderRating + '\n');
 							
-							bidOut.append(itemID + columnSeparator + "\"" + bidder + "\"" + columnSeparator + bidTime + columnSeparator + bidAmount + '\n');
+							bidOut.append(itemID + "," + "\"" + bidder + "\"," + bidTime + "," + bidAmount + '\n');
 							
 		        	currBid = (Element) currBid.getNextSibling();
 		        }
 		        
 		        
-						itemOut.append(itemID + columnSeparator + "\"" + username + "\"" + columnSeparator + "\"" + itemName + "\"" + columnSeparator + currVal + columnSeparator + firstBid + columnSeparator + buyPrice + columnSeparator + numBids + columnSeparator + startTime + columnSeparator + endTime + columnSeparator + "\"" + description + "\"" + '\n');
-						//itemOut.append(itemID + "," + "\"" + username + "\"," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + '\n');
+						itemOut.append(itemID + "," + "\"" + username + "\"," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + "," + "\"" + description + "\"" + '\n');
 						
-						userOut.append("\"" + username + "\"" + columnSeparator + "\"" + location + "\"" + columnSeparator + "\"" + country + "\"" + columnSeparator + userRating + '\n');
+						userOut.append("\"" + username + "\"," + "\"" + location + "\"," + "\"" + country + "\"," + userRating + '\n');
 					
 						currItem = (Element) currItem.getNextSibling();
 	        }
