@@ -34,3 +34,5 @@ CREATE TABLE Categories (
 	CONSTRAINT CategoriesKey PRIMARY KEY (ItemID, Category),
 	FOREIGN KEY (ItemID) REFERENCES Items (ItemID)
 	);
+	
+	
