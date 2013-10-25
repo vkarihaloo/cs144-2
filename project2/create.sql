@@ -31,6 +31,6 @@ CREATE TABLE Bids (
 CREATE TABLE Categories (
 	ItemID INT,
 	Category VARCHAR(50),
-	PRIMARY KEY (ITEMID),
+	CONSTRAINT CategoriesKey PRIMARY KEY (ItemID, Category),
 	FOREIGN KEY (ItemID) REFERENCES Items (ItemID)
 	);

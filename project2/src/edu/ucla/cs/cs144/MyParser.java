@@ -263,7 +263,7 @@ class MyParser {
 		        
 		        for (int i = 0; i < categories.length; i++)
 		        {
-		        	categoryOut.append(itemID + "," + "\"" + getElementText(categories[i]) + "\"" + '\n');
+		        	categoryOut.append(itemID + columnSeparator + "\"" + getElementText(categories[i]) + "\"" + '\n');
 		        }
 		        
 		        Element Bids = getElementByTagNameNR(currItem, "Bids");

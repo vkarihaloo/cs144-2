@@ -7,3 +7,6 @@ LOAD DATA LOCAL INFILE 'items.csv' into TABLE Items
   
 LOAD DATA LOCAL INFILE 'bids.csv' into TABLE Bids
   FIELDS TERMINATED BY '|*|' ENCLOSED BY '"';
+  
+LOAD DATA LOCAL INFILE 'category.csv' into TABLE Categories
+  FIELDS TERMINATED BY '|*|' ENCLOSED BY '"';
