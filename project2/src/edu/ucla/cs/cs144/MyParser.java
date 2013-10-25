@@ -183,7 +183,12 @@ class MyParser {
 			
 			return timeString;
     }
-       
+    
+    public static String escapeString(String input)
+    {
+    	input = input.replace("\"","\\\"");
+    	return input;
+    } 
     /* Process one items-???.xml file.
      */
     static void processFile(File xmlFile) {
@@ -227,23 +232,30 @@ class MyParser {
 	        {
 	        	//do stuff
       
-		        String itemName = getElementTextByTagNameNR(currItem, "Name");
-		        itemName = itemName.replace("\"","\\\"");
+		        String itemName = escapeString(getElementTextByTagNameNR(currItem, "Name"));
+
 		        
 		        int itemID = Integer.parseInt(currItem.getAttributes().item(0).getNodeValue());
 		        String currVal = strip(getElementTextByTagNameNR(currItem, "Currently"));
 						String firstBid = strip(getElementTextByTagNameNR(currItem, "First_Bid"));
 						String buyPrice = strip(getElementTextByTagNameNR(currItem, "Buy_Price"));
-						String numBids = getElementTextByTagNameNR(currItem, "Number_Of_Bids");
 						
-						String description = ellipsis(getElementTextByTagNameNR(currItem, "Description"));
+						if (buyPrice == "")
+						{
+							buyPrice = "00.00";
+						}
+						String numBids = getElementTextByTagNameNR(currItem, "Number_of_Bids");
+						
+						String description = escapeString(ellipsis(getElementTextByTagNameNR(currItem, "Description")));
+						
 						String startTime = convertTime(getElementTextByTagNameNR(currItem, "Started"));
 						String endTime = convertTime(getElementTextByTagNameNR(currItem, "Ends"));
 						
 						Element userinfo = getElementByTagNameNR(currItem, "Seller");
-						String username = userinfo.getAttributes().item(1).getNodeValue();
+						String username = escapeString(userinfo.getAttributes().item(1).getNodeValue());
+			
 						String userRating = userinfo.getAttributes().item(0).getNodeValue();
-						String location = getElementTextByTagNameNR(currItem, "Location");
+						String location = escapeString(getElementTextByTagNameNR(currItem, "Location"));
 						String country = getElementTextByTagNameNR(currItem, "Country");
 								        
         		
@@ -262,23 +274,23 @@ class MyParser {
 		        	Element bidderInfo = getElementByTagNameNR(currBid, "Bidder");
 							String bidder = bidderInfo.getAttributes().item(1).getNodeValue();
 							String bidderRating = bidderInfo.getAttributes().item(0).getNodeValue();
-							String b_location = getElementTextByTagNameNR(bidderInfo, "Location");
+							String b_location = escapeString(getElementTextByTagNameNR(bidderInfo, "Location"));
 							String b_country = getElementTextByTagNameNR(bidderInfo, "Country");
 							
 							String bidTime = convertTime(getElementTextByTagNameNR(currBid, "Time"));
 							String bidAmount = strip(getElementTextByTagNameNR(currBid, "Amount"));
 							
-							userOut.append(bidder + "," + "\"" + b_location + "\"," + "\"" + b_country + "\"," + bidderRating + '\n');
+							userOut.append("\"" + bidder + "\"," + "\"" + b_location + "\"," + "\"" + b_country + "\"," + bidderRating + '\n');
 							
-							bidOut.append(itemID + "," + bidder + "," + bidTime + "," + bidAmount + '\n');
+							bidOut.append(itemID + "," + "\"" + bidder + "\"," + bidTime + "," + bidAmount + '\n');
 							
 		        	currBid = (Element) currBid.getNextSibling();
 		        }
 		        
 		        
-						itemOut.append(itemID + "," + username + "," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + "," + "\"" + description + "\"" + '\n');
+						itemOut.append(itemID + "," + "\"" + username + "\"," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + "," + "\"" + description + "\"" + '\n');
 						
-						userOut.append(username + "," + "\"" + location + "\"," + "\"" + country + "\"," + userRating + '\n');
+						userOut.append("\"" + username + "\"," + "\"" + location + "\"," + "\"" + country + "\"," + userRating + '\n');
 					
 						currItem = (Element) currItem.getNextSibling();
 	        }

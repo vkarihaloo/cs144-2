@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS Users, Items, Bids;
+
 
 CREATE TABLE Users (
 	UsersID VARCHAR(50) PRIMARY KEY,
