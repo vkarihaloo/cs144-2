@@ -9,3 +9,5 @@
 5. SELECT COUNT(*) FROM Users WHERE UsersID in (SELECT SellerID FROM Items) AND rating > 1000;
 
 6. SELECT COUNT(*) FROM (SELECT DISTINCT Items.SellerID FROM Items INNER JOIN Bids ON Items.SellerID = Bids.BidderID) A;
+
+7. SELECT COUNT(*) FROM (SELECT DISTINCT Category FROM Categories WHERE ItemID in (SELECT DISTINCT ItemID FROM Bids WHERE Amount > 100.00)) A;
