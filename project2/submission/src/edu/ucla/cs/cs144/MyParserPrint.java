@@ -40,8 +40,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.ErrorHandler;
 
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Date;
 
-class MyParser {
+
+class MyParserPrint {
     
     static final String columnSeparator = "|*|";
     static DocumentBuilder builder;
@@ -157,7 +161,7 @@ class MyParser {
             return nf.format(am).substring(1);
         }
     }
-
+    
     public static String ellipsis(final String text)
  		{
  			if (text.length() > 4000)
@@ -172,7 +176,7 @@ class MyParser {
     	try
 		  {
 				SimpleDateFormat oldformat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
-				SimpleDateFormat newformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				SimpleDateFormat newformat = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 			        
 				timeString = newformat.format(oldformat.parse(timeString));
 			}
@@ -184,11 +188,6 @@ class MyParser {
 			return timeString;
     }
     
-    public static String escapeString(String input)
-    {
-    	input = input.replaceAll("\"","\\\\\"");
-    	return input;
-    } 
     /* Process one items-???.xml file.
      */
     static void processFile(File xmlFile) {
@@ -213,13 +212,13 @@ class MyParser {
         
         /* Fill in code here (you will probably need to write auxiliary
             methods). */
-
-				try 
+        
+        try 
         {
 	        FileWriter userStream = new FileWriter("users-temp.csv", true);
-	        FileWriter itemStream = new FileWriter("items.csv", true);
-	        FileWriter categoryStream = new FileWriter("category-temp.csv", true);
-	        FileWriter bidStream = new FileWriter("bids.csv", true);
+	        FileWriter itemStream = new FileWriter("items.csv");
+	        FileWriter categoryStream = new FileWriter("category.csv");
+	        FileWriter bidStream = new FileWriter("bids.csv");
 	        
 					BufferedWriter userOut = new BufferedWriter(userStream);
 					BufferedWriter itemOut = new BufferedWriter(itemStream);
@@ -232,38 +231,31 @@ class MyParser {
 	        {
 	        	//do stuff
       
-		        String itemName = escapeString(getElementTextByTagNameNR(currItem, "Name"));
-
+		        String itemName = getElementTextByTagNameNR(currItem, "Name");
+		        itemName = itemName.replace("\"","\\\"");
 		        
 		        int itemID = Integer.parseInt(currItem.getAttributes().item(0).getNodeValue());
 		        String currVal = strip(getElementTextByTagNameNR(currItem, "Currently"));
 						String firstBid = strip(getElementTextByTagNameNR(currItem, "First_Bid"));
 						String buyPrice = strip(getElementTextByTagNameNR(currItem, "Buy_Price"));
+						String numBids = getElementTextByTagNameNR(currItem, "Number_Of_Bids");
 						
-						if (buyPrice == "")
-						{
-							buyPrice = "00.00";
-						}
-						String numBids = getElementTextByTagNameNR(currItem, "Number_of_Bids");
-						
-						String description = escapeString(ellipsis(getElementTextByTagNameNR(currItem, "Description")));
-						
+						String description = ellipsis(getElementTextByTagNameNR(currItem, "Description"));
 						String startTime = convertTime(getElementTextByTagNameNR(currItem, "Started"));
 						String endTime = convertTime(getElementTextByTagNameNR(currItem, "Ends"));
 						
 						Element userinfo = getElementByTagNameNR(currItem, "Seller");
-						String username = escapeString(userinfo.getAttributes().item(1).getNodeValue());
-			
+						String username = userinfo.getAttributes().item(1).getNodeValue();
 						String userRating = userinfo.getAttributes().item(0).getNodeValue();
-						String location = escapeString(getElementTextByTagNameNR(currItem, "Location"));
-						String country = escapeString(getElementTextByTagNameNR(currItem, "Country"));
+						String location = getElementTextByTagNameNR(currItem, "Location");
+						String country = getElementTextByTagNameNR(currItem, "Country");
 								        
         		
         		Element[] categories = getElementsByTagNameNR(currItem, "Category");
 		        
 		        for (int i = 0; i < categories.length; i++)
 		        {
-		        	categoryOut.append(itemID + columnSeparator + "\"" + getElementText(categories[i]) + "\"" + '\n');
+		        	categoryOut.append(itemID + ", " + "\"" + getElementText(categories[i]) + "\"" + '\n');
 		        }
 		        
 		        Element Bids = getElementByTagNameNR(currItem, "Bids");
@@ -272,26 +264,25 @@ class MyParser {
 		        while (currBid != null)
 		        {
 		        	Element bidderInfo = getElementByTagNameNR(currBid, "Bidder");
-							String bidder = escapeString(bidderInfo.getAttributes().item(1).getNodeValue());
+							String bidder = bidderInfo.getAttributes().item(1).getNodeValue();
 							String bidderRating = bidderInfo.getAttributes().item(0).getNodeValue();
-							String b_location = escapeString(getElementTextByTagNameNR(bidderInfo, "Location"));
-							String b_country = escapeString(getElementTextByTagNameNR(bidderInfo, "Country"));
+							String b_location = getElementTextByTagNameNR(bidderInfo, "Location");
+							String b_country = getElementTextByTagNameNR(bidderInfo, "Country");
 							
 							String bidTime = convertTime(getElementTextByTagNameNR(currBid, "Time"));
 							String bidAmount = strip(getElementTextByTagNameNR(currBid, "Amount"));
 							
-							userOut.append("\"" + bidder + "\"" + columnSeparator + "\"" + b_location + "\"" + columnSeparator + "\"" + b_country + "\"" + columnSeparator + bidderRating + '\n');
+							userOut.append(bidder + "," + bidderRating + "," + "\"" + b_location + "\"," + "\"" + b_country + "\"" + '\n');
 							
-							bidOut.append(itemID + columnSeparator + "\"" + bidder + "\"" + columnSeparator + bidTime + columnSeparator + bidAmount + '\n');
+							bidOut.append(itemID + ", " + bidder + ", " + bidTime + ", " + bidAmount + '\n');
 							
 		        	currBid = (Element) currBid.getNextSibling();
 		        }
 		        
 		        
-						itemOut.append(itemID + columnSeparator + "\"" + username + "\"" + columnSeparator + "\"" + itemName + "\"" + columnSeparator + currVal + columnSeparator + firstBid + columnSeparator + buyPrice + columnSeparator + numBids + columnSeparator + startTime + columnSeparator + endTime + columnSeparator + "\"" + description + "\"" + '\n');
-						//itemOut.append(itemID + "," + "\"" + username + "\"," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + '\n');
+						itemOut.append(itemID + "," + username + "," + "\"" + itemName + "\"" + "," + currVal + "," + firstBid + "," + buyPrice + "," + numBids + "," + startTime + "," + endTime + "," + "\"" + description + "\"" + '\n');
 						
-						userOut.append("\"" + username + "\"" + columnSeparator + "\"" + location + "\"" + columnSeparator + "\"" + country + "\"" + columnSeparator + userRating + '\n');
+						userOut.append(username + "," + userRating + "," + "\"" + location + "\"," + "\"" + country + "\"" + '\n');
 					
 						currItem = (Element) currItem.getNextSibling();
 	        }
@@ -304,12 +295,41 @@ class MyParser {
 			  catch(IOException e)
 				{
 	     		e.printStackTrace();
-				}        
-        
+				} 
+
         
         /**************************************************************/
         
+        
+        //recursiveDescent(doc, 0);
+        
+        
     }
+    
+    public static void recursiveDescent(Node n, int level) {
+        // adjust indentation according to level
+        for(int i=0; i<4*level; i++)
+            System.out.print(" ");
+        
+        // dump out node name, type, and value  
+        String ntype = typeName[n.getNodeType()];
+        String nname = n.getNodeName();
+        String nvalue = n.getNodeValue();
+        
+        System.out.println("Type = " + ntype + ", Name = " + nname + ", Value = " + nvalue);
+        
+        // dump out attributes if any
+        org.w3c.dom.NamedNodeMap nattrib = n.getAttributes();
+        if(nattrib != null && nattrib.getLength() > 0)
+            for(int i=0; i<nattrib.getLength(); i++)
+                recursiveDescent(nattrib.item(i),  level+1);
+        
+        // now walk through its children list
+        org.w3c.dom.NodeList nlist = n.getChildNodes();
+        
+        for(int i=0; i<nlist.getLength(); i++)
+            recursiveDescent(nlist.item(i), level+1);
+    }  
     
     public static void main (String[] args) {
         if (args.length == 0) {
