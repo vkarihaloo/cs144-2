@@ -31,7 +31,7 @@
     <target name="run" depends="compile">
         <java classname="edu.ucla.cs.cs144.MyParser" failonerror="true" fork="yes">
             <classpath refid="classpath"/>
-            <arg value="${env.EBAY_DATA}/test-items.xml" />
+            <arg value="${env.EBAY_DATA}/items-0.xml" />
         </java>
     </target>
 
