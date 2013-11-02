@@ -13,13 +13,21 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
 
+//imports for search
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.IndexSearcher;
+/*****************/
+
 public class Indexer {
     
     /** Creates a new instance of Indexer */
     public Indexer() {
     }
  
-    public void rebuildIndexes() {
+    public void rebuildIndexes() throws Exception {
 
         Connection conn = null;
         IndexWriter indexWriter = null;
@@ -57,37 +65,30 @@ public class Indexer {
          * and place your class source files at src/edu/ucla/cs/cs144/.
 	 * 
 	 */
+	
 	 
-	 	Statement stmt = null;
-	  
-	  try 
-	  {
-	  	stmt = conn.createStatement();
-	 		ResultSet rs = stmt.executeQuery("SELECT ItemId, Name, Description FROM Items WHERE ItemID = 1043374545");
-		
+	 	ResultSet rs = getAllItems(conn);
+		if (rs != null)
+		{
 			while (rs.next()) 
 			{
 				Document doc = new Document();
-  			doc.add(new Field("id", rs.getInt("ItemId"), Field.Store.YES, Field.Index.NO));
+  			doc.add(new Field("id", Integer.toString(rs.getInt("ItemId")), Field.Store.YES, Field.Index.NO));
   			doc.add(new Field("name", rs.getString("Name"), Field.Store.YES, Field.Index.TOKENIZED));
-  			//doc.add(new Field("city", hotel.getCity(), Field.Store.YES, Field.Index.UN_TOKENIZED));
   			doc.add(new Field("description", rs.getString("Description"), Field.Store.YES, Field.Index.TOKENIZED));
  				
- 				ResultSet cats = stmt.executeQuery("SELECT group_concat(Category separator ' ') as ItemCats FROM Categories WHERE ItemId = '" + rs.getInt("ItemId") + "'");
- 				String fullSearchableText = rs.getString("Name") + " " + rs.getString("Description") + " " + cats.getString("ItemCats");
+ 				String itemCats = getCategories(conn, rs.getInt("ItemId"));
+ 				
+ 				String fullSearchableText = rs.getString("Name") + " " + rs.getString("Description") + " " + itemCats;
 
   			doc.add(new Field("content", fullSearchableText, Field.Store.NO, Field.Index.TOKENIZED));
-  			writer.addDocument(doc);
   			
-		    System.out.println("Name: " + name);
+  			indexWriter.addDocument(doc);
+
+
 			} 
 		}
-		catch (SQLException ex) 
-		{
 
-    	System.err.println("SQLException: " + ex.getMessage());
-
-		} 
 	 
 	 try
 	 {
@@ -106,10 +107,67 @@ public class Indexer {
 	}
     }    
 
-
-    public static void main(String args[]) {
+		private static ResultSet getAllItems(Connection conn)
+		{
+			Statement stmt = null;  
+			ResultSet rs = null;
+	  	try 
+	  	{
+	  		stmt = conn.createStatement();
+	 			rs = stmt.executeQuery("SELECT ItemId, Name, Description FROM Items");
+	 		}
+	 		catch (SQLException ex) 
+			{
+    		System.err.println("SQLException: " + ex.getMessage());
+			} 
+			return rs;
+		}
+		
+		private static String getCategories(Connection conn, int ItemId)
+		{
+			Statement stmt = null;  
+			String cats = "";
+	  	try 
+	  	{
+	  		stmt = conn.createStatement();
+	 			ResultSet rs = stmt.executeQuery("SELECT group_concat(Category separator ' ') as ItemCats FROM Categories WHERE ItemId = '" + ItemId + "'");
+	 			
+ 				if (rs.next())
+ 				{
+ 					cats = rs.getString("ItemCats");
+ 		  	}
+	 		}
+	 		catch (SQLException ex) 
+			{
+    		System.err.println("SQLException: " + ex.getMessage());
+			} 
+ 		  
+			return cats;
+		}
+		
+		
+    public static void main(String args[]) throws Exception {
         Indexer idx = new Indexer();
         idx.rebuildIndexes();
+        
+        /* TESTING THE SEARCH */
+        IndexSearcher searcher = new IndexSearcher(System.getenv("LUCENE_INDEX"));
+   			QueryParser parser = new QueryParser("content", new StandardAnalyzer());
+
+
+    		Query query = parser.parse("superman");
+    		Hits hits = searcher.search(query);
+        System.out.println("Results found: " + hits.length());
+        /*
+        for(int i = 0; i < hits.length(); i++) 
+        {
+   				Document doc = hits.doc(i);
+   				String hotelName = doc.get("name");
+
+ 				}
+        */
+        
+        
         
     }   
 }
