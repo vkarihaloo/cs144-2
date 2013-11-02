@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.io.IOException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.analysis.TokenStream;
@@ -21,6 +22,7 @@ public class Indexer {
     public void rebuildIndexes() {
 
         Connection conn = null;
+        IndexWriter indexWriter = null;
 
         // create a connection to the database to retrieve Items from MySQL
 	try {
@@ -28,7 +30,14 @@ public class Indexer {
 	} catch (SQLException ex) {
 	    System.out.println(ex);
 	}
-
+		try 
+		{
+			indexWriter = new IndexWriter(System.getenv("LUCENE_INDEX"), new StandardAnalyzer(), true);
+		}
+		catch (IOException ex)
+		{
+			System.out.println(ex);
+		}
 
 	/*
 	 * Add your code here to retrieve Items using the connection
@@ -48,7 +57,46 @@ public class Indexer {
          * and place your class source files at src/edu/ucla/cs/cs144/.
 	 * 
 	 */
+	 
+	 	Statement stmt = null;
+	  
+	  try 
+	  {
+	  	stmt = conn.createStatement();
+	 		ResultSet rs = stmt.executeQuery("SELECT ItemId, Name, Description FROM Items WHERE ItemID = 1043374545");
+		
+			while (rs.next()) 
+			{
+				Document doc = new Document();
+  			doc.add(new Field("id", rs.getInt("ItemId"), Field.Store.YES, Field.Index.NO));
+  			doc.add(new Field("name", rs.getString("Name"), Field.Store.YES, Field.Index.TOKENIZED));
+  			//doc.add(new Field("city", hotel.getCity(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+  			doc.add(new Field("description", rs.getString("Description"), Field.Store.YES, Field.Index.TOKENIZED));
+ 				
+ 				ResultSet cats = stmt.executeQuery("SELECT group_concat(Category separator ' ') as ItemCats FROM Categories WHERE ItemId = '" + rs.getInt("ItemId") + "'");
+ 				String fullSearchableText = rs.getString("Name") + " " + rs.getString("Description") + " " + cats.getString("ItemCats");
 
+  			doc.add(new Field("content", fullSearchableText, Field.Store.NO, Field.Index.TOKENIZED));
+  			writer.addDocument(doc);
+  			
+		    System.out.println("Name: " + name);
+			} 
+		}
+		catch (SQLException ex) 
+		{
+
+    	System.err.println("SQLException: " + ex.getMessage());
+
+		} 
+	 
+	 try
+	 {
+		indexWriter.close();
+	 }
+	 catch (IOException ex)
+	 {
+	 	System.out.println(ex);
+	 }
 
         // close the database connection
 	try {
@@ -58,8 +106,10 @@ public class Indexer {
 	}
     }    
 
+
     public static void main(String args[]) {
         Indexer idx = new Indexer();
         idx.rebuildIndexes();
+        
     }   
 }
