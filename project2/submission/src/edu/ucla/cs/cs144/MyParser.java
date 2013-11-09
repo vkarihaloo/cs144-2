@@ -242,7 +242,7 @@ class MyParser {
 						
 						if (buyPrice.equals(""))
 						{
-							buyPrice = "\N";
+							buyPrice = "\\N";
 						}
 						String numBids = getElementTextByTagNameNR(currItem, "Number_of_Bids");
 						
