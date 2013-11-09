@@ -26,6 +26,11 @@ import edu.ucla.cs.cs144.DbManager;
 import edu.ucla.cs.cs144.SearchConstraint;
 import edu.ucla.cs.cs144.SearchResult;
 
+/*java Timestamp class */
+import java.sql.Timestamp;
+import java.text.StringCharacterIterator;
+import java.text.CharacterIterator;
+
 public class AuctionSearch implements IAuctionSearch {
 
 	/* 
@@ -382,8 +387,6 @@ public class AuctionSearch implements IAuctionSearch {
 	
 	private String getSQLField(String field)
 	{
-		//gay function
-
 		if (field.equals("SellerId"))
 		{
 			field = "SellerID";
@@ -407,13 +410,181 @@ public class AuctionSearch implements IAuctionSearch {
 	
 		return field;
 	}
+
 	public String getXMLDataForItemId(String itemId) {
 		// TODO: Your code here!
-		return null;
+		String xmlString = "<Item ItemID=\"" + itemId + "\">" + "\n";
+
+		String SellerID, Name, Currently, First_Bid, Buy_Price, Number_of_Bids, Started, Ends, Description, Rating, Location, Country;
+        SellerID = "";
+        Name = "";
+        Currently = "";
+        First_Bid = "";
+        Buy_Price = "";
+        Number_of_Bids = "";
+        Started =  "";
+        Ends = "";
+        Description = "";
+        Rating = "";
+        Location = "";
+        Country = "";
+
+        try{
+		Statement stmt = conn.createStatement();
+
+		ResultSet rs = stmt.executeQuery("SELECT * FROM Items WHERE ItemID ='" + itemId + "'");
+
+		while (rs.next()) {
+			SellerID = rs.getString("SellerID");
+			Name = rs.getString("Name");
+			Currently = Float.toString(rs.getFloat("Currently"));
+			First_Bid = Float.toString(rs.getFloat("First_Bid"));
+			Buy_Price = Float.toString(rs.getFloat("Buy_Price"));
+			Number_of_Bids = Integer.toString(rs.getInt("Number_of_Bids"));
+			Started = rs.getTimestamp("Started").toString();
+			Ends = rs.getTimestamp("Ends").toString();
+			Description = rs.getString("Description").toString();
+		}
+
+
+
+		xmlString += "	<Name>" + forXML(Name) + "</Name>" + "\n";
+
+		rs = stmt.executeQuery("SELECT * FROM Categories WHERE ItemID='" + itemId + "'");
+
+		while (rs.next()) {
+			xmlString += "	<Category>" + forXML(rs.getString("Category")) + "</Category>" +"\n";
+		}
+
+		xmlString += "	<Currently>" + forXML(Currently) + "<Currently>" + "\n";
+
+		xmlString += "	<First_Bid>" + forXML(First_Bid) + "</First_Bid>" + "\n";
+
+		xmlString += "	<Number_of_Bids>" + forXML(Number_of_Bids) + "</Number_of_Bids>" + "\n";
+
+		xmlString += "	<Bids>" + "\n";
+
+		rs = stmt.executeQuery("SELECT * FROM Bids WHERE ItemID='" + itemId + "'");
+
+		while (rs.next()) {
+			xmlString = BidXMLHelper(xmlString, rs.getString("BidderID"), rs.getTimestamp("Time").toString(),Float.toString(rs.getFloat("Amount")));
+		}
+		/*
+
+		while (rs.next()) {
+			ResultSet tmp_rs = tmp_stmt.executeQuery("SELECT * FROM Users WHERE UsersID ='" + rs.getString("BidderID") + "'");
+			Rating = Integer.toString(tmp_rs.getInt("Rating"));
+			Location = tmp_rs.getString("Location");
+			Country = tmp_rs.getString("Country");
+
+			xmlString += "		<Bid>" + "\n";
+			xmlString += "			<Bidder " + "UserID=\"" + forXML(rs.getString("BidderID")) + "\" " +
+			"Rating=\"" + forXML(Rating) + "\">" + "\n";
+			xmlString += "				<Location>" + forXML(Location) + "</Location>" + "\n";
+			xmlString += "				<Country>" + forXML(Country) + "</Country>" + "\n";
+			xmlString += "			</Bidder>";
+			xmlString += "			<Time>" + forXML(rs.getTimestamp("Time").toString()) + "</Time>" + "\n";
+			xmlString += "			<Amount>" + forXML(Float.toString(rs.getFloat("Amount"))) + "</Amount>" + "\n";
+			xmlString += "		</Bid>" + "\n";
+
+		} */
+
+		xmlString += "	</Bids>" + "\n";
+
+		rs = stmt.executeQuery("SELECT * FROM Users WHERE UserID='" + SellerID + "'");
+
+		while (rs.next()) {
+
+		xmlString += "	<Location>" + forXML(rs.getString("Location")) + "<Location>" + "\n";
+
+		xmlString += "	<Country>" + forXML(rs.getString("Country")) + "<Country>" + "\n";
+
+		Rating = Integer.toString(rs.getInt("Rating"));
+		}
+
+		xmlString += "	<Started>" + forXML(Started) + "<Started>" + "\n";
+
+		xmlString += "	<Ends>" + forXML(Ends) + "</Ends>" + "\n";
+
+		
+
+		xmlString += "	<Seller " + "UserID=\"" + forXML(SellerID) + "\" " +
+			"Rating=\"" + forXML(Rating) + "\"/>" + "\n";
+
+		xmlString += "	<Description>" + forXML(Description) + "</Description>" + "\n";
+
+		xmlString += "</Item>";
+		
+
+
+        } catch (SQLException ex) {};
+
+        return xmlString;
+	}
+
+	public String BidXMLHelper(String xmlString, String BidderID, String Time, String Amount) {
+
+		String Rating = "";
+		String Location ="";
+		String Country = "";
+
+		try {
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT * FROM Users WHERE UserID ='" + BidderID + "'");
+
+			while (rs.next()) {
+			Rating = Integer.toString(rs.getInt("Rating"));
+			Location = rs.getString("Location");
+			Country = rs.getString("Country");
+		}
+
+			xmlString += "		<Bid>" + "\n";
+			xmlString += "			<Bidder " + "UserID=\"" + forXML(BidderID) + "\" " +
+			"Rating=\"" + forXML(Rating) + "\">" + "\n";
+			xmlString += "				<Location>" + forXML(Location) + "</Location>" + "\n";
+			xmlString += "				<Country>" + forXML(Country) + "</Country>" + "\n";
+			xmlString += "			</Bidder>";
+			xmlString += "			<Time>" + forXML(Time) + "</Time>" + "\n";
+			xmlString += "			<Amount>" + forXML(Amount) + "</Amount>" + "\n";
+			xmlString += "		</Bid>" + "\n";
+
+		} catch (SQLException ex) {};
+
+		return xmlString;
 	}
 	
 	public String echo(String message) {
 		return message;
 	}
+
+	public static String forXML(String aText){
+    final StringBuilder result = new StringBuilder();
+    final StringCharacterIterator iterator = new StringCharacterIterator(aText);
+    char character =  iterator.current();
+    while (character != CharacterIterator.DONE ){
+      if (character == '<') {
+        result.append("&lt;");
+      }
+      else if (character == '>') {
+        result.append("&gt;");
+      }
+      else if (character == '\"') {
+        result.append("&quot;");
+      }
+      else if (character == '\'') {
+        result.append("&apos;");
+      }
+      else if (character == '&') {
+         result.append("&amp;");
+      }
+      else {
+        //the char is not a special one
+        //add it to the result as is
+        result.append(character);
+      }
+      character = iterator.next();
+    }
+    return result.toString();
+  }
 
 }
