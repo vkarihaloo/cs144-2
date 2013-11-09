@@ -502,9 +502,9 @@ public class AuctionSearch implements IAuctionSearch {
 		Rating = Integer.toString(rs.getInt("Rating"));
 		}
 
-		xmlString += "	<Started>" + forXML(Started) + "<Started>" + "\n";
+		xmlString += "	<Started>" + forXML(convertTime(Started)) + "<Started>" + "\n";
 
-		xmlString += "	<Ends>" + forXML(Ends) + "</Ends>" + "\n";
+		xmlString += "	<Ends>" + forXML(convertTime(Ends)) + "</Ends>" + "\n";
 
 		
 
@@ -543,8 +543,8 @@ public class AuctionSearch implements IAuctionSearch {
 			"Rating=\"" + forXML(Rating) + "\">" + "\n";
 			xmlString += "				<Location>" + forXML(Location) + "</Location>" + "\n";
 			xmlString += "				<Country>" + forXML(Country) + "</Country>" + "\n";
-			xmlString += "			</Bidder>";
-			xmlString += "			<Time>" + forXML(Time) + "</Time>" + "\n";
+			xmlString += "			</Bidder>" + "\n";
+			xmlString += "			<Time>" + forXML(convertTime(Time)) + "</Time>" + "\n";
 			xmlString += "			<Amount>" + forXML(Amount) + "</Amount>" + "\n";
 			xmlString += "		</Bid>" + "\n";
 
@@ -586,5 +586,22 @@ public class AuctionSearch implements IAuctionSearch {
     }
     return result.toString();
   }
+  
+  public static String convertTime(String timeString)
+    {
+    	try
+		  {
+				SimpleDateFormat xmlformat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+				SimpleDateFormat dbformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			        
+				timeString = xmlformat.format(dbformat.parse(timeString));
+			}
+			catch(Exception pe)
+			{
+	    	System.out.println("ERROR: Cannot parse");
+			} 
+			
+			return timeString;
+    }
 
 }
