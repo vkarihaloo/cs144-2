@@ -442,6 +442,7 @@ public class AuctionSearch implements IAuctionSearch {
 			/*if (rs.getFloat("Buy_Price") != null){
 				Buy_Price = String.format("%.2f", rs.getFloat("Buy_Price"));
 			}*/
+			Buy_Price = String.format("%.2f", rs.getFloat("Buy_Price"));
 
 			Number_of_Bids = Integer.toString(rs.getInt("Number_of_Bids"));
 			Started = rs.getTimestamp("Started").toString();
@@ -459,9 +460,9 @@ public class AuctionSearch implements IAuctionSearch {
 
 		xmlString += "	<Currently>" + "$" + forXML(Currently) + "<Currently>" + "\n";
 
-		/*if (Buy_Price != "") {
-			xmlString += "	<Currently>" + "$" + forXML(Buy_Price) + "<Currently>" + "\n";
-		} */
+		if (!Buy_Price.equals("0.00")) {
+			xmlString += "	<Buy_Price>" + "$" + forXML(Buy_Price) + "<Buy_Price>" + "\n";
+		} 
 
 		xmlString += "	<First_Bid>" + "$" + forXML(First_Bid) + "</First_Bid>" + "\n";
 
@@ -474,25 +475,6 @@ public class AuctionSearch implements IAuctionSearch {
 		while (rs.next()) {
 			xmlString = BidXMLHelper(xmlString, rs.getString("BidderID"), rs.getTimestamp("Time").toString(),String.format("%.2f", rs.getFloat("Amount")));
 		}
-		/*
-
-		while (rs.next()) {
-			ResultSet tmp_rs = tmp_stmt.executeQuery("SELECT * FROM Users WHERE UsersID ='" + rs.getString("BidderID") + "'");
-			Rating = Integer.toString(tmp_rs.getInt("Rating"));
-			Location = tmp_rs.getString("Location");
-			Country = tmp_rs.getString("Country");
-
-			xmlString += "		<Bid>" + "\n";
-			xmlString += "			<Bidder " + "UserID=\"" + forXML(rs.getString("BidderID")) + "\" " +
-			"Rating=\"" + forXML(Rating) + "\">" + "\n";
-			xmlString += "				<Location>" + forXML(Location) + "</Location>" + "\n";
-			xmlString += "				<Country>" + forXML(Country) + "</Country>" + "\n";
-			xmlString += "			</Bidder>";
-			xmlString += "			<Time>" + forXML(rs.getTimestamp("Time").toString()) + "</Time>" + "\n";
-			xmlString += "			<Amount>" + forXML(Float.toString(rs.getFloat("Amount"))) + "</Amount>" + "\n";
-			xmlString += "		</Bid>" + "\n";
-
-		} */
 
 		xmlString += "	</Bids>" + "\n";
 
@@ -581,6 +563,9 @@ public class AuctionSearch implements IAuctionSearch {
       }
       else if (character == '&') {
          result.append("&amp;");
+      }
+      else if (character == '\\') {
+      	result.append("\\");
       }
       else {
         //the char is not a special one

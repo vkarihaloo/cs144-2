@@ -25,7 +25,7 @@ public class AuctionSearchTest {
 			System.out.println(result.getItemId() + ": " + result.getName());
 		}
 		
-		/*
+		
 		SearchConstraint constraint =
 		    new SearchConstraint(FieldName.BuyPrice, "5.99"); 
 		SearchConstraint[] constraints = {constraint};
@@ -34,7 +34,7 @@ public class AuctionSearchTest {
 		System.out.println("Received " + advancedResults.length + " results");
 		for(SearchResult result : advancedResults) {
 			System.out.println(result.getItemId() + ": " + result.getName());
-		}*/
+		}
 		
 		String itemId = "1497497054";
 		String item = as.getXMLDataForItemId(itemId);
