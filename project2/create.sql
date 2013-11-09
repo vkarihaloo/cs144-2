@@ -11,7 +11,7 @@ CREATE TABLE Items (
 	Name VARCHAR(100), 
 	Currently DECIMAL(8,2), 
 	First_Bid DECIMAL(8,2), 
-	Buy_Price DECIMAL(8,2),
+	Buy_Price DECIMAL(8,2) default NULL,
 	Number_of_Bids INT,  
 	Started TIMESTAMP, 
 	Ends TIMESTAMP, 

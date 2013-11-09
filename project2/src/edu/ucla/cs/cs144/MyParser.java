@@ -240,9 +240,9 @@ class MyParser {
 						String firstBid = strip(getElementTextByTagNameNR(currItem, "First_Bid"));
 						String buyPrice = strip(getElementTextByTagNameNR(currItem, "Buy_Price"));
 						
-						if (buyPrice == "")
+						if (buyPrice.equals(""))
 						{
-							buyPrice = "00.00";
+							buyPrice = "\\N";
 						}
 						String numBids = getElementTextByTagNameNR(currItem, "Number_of_Bids");
 						
