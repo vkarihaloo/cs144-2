@@ -1,5 +1,5 @@
 CREATE TABLE Users (
-	UsersID VARCHAR(50) PRIMARY KEY,
+	UserID VARCHAR(50) PRIMARY KEY,
 	Location VARCHAR(100),
 	Country VARCHAR(100),
 	Rating INT
@@ -16,7 +16,7 @@ CREATE TABLE Items (
 	Started TIMESTAMP, 
 	Ends TIMESTAMP, 
 	Description VARCHAR(4000),
-	FOREIGN KEY (SellerID) REFERENCES Users (UsersID)
+	FOREIGN KEY (SellerID) REFERENCES Users (UserID)
 	);
 
 CREATE TABLE Bids (

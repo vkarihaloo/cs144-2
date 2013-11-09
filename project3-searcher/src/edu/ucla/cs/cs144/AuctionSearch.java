@@ -437,16 +437,17 @@ public class AuctionSearch implements IAuctionSearch {
 		while (rs.next()) {
 			SellerID = rs.getString("SellerID");
 			Name = rs.getString("Name");
-			Currently = Float.toString(rs.getFloat("Currently"));
-			First_Bid = Float.toString(rs.getFloat("First_Bid"));
-			Buy_Price = Float.toString(rs.getFloat("Buy_Price"));
+			Currently = String.format("%.2f", rs.getFloat("Currently"));
+			First_Bid = String.format("%.2f", rs.getFloat("First_Bid"));
+			/*if (rs.getFloat("Buy_Price") != null){
+				Buy_Price = String.format("%.2f", rs.getFloat("Buy_Price"));
+			}*/
+
 			Number_of_Bids = Integer.toString(rs.getInt("Number_of_Bids"));
 			Started = rs.getTimestamp("Started").toString();
 			Ends = rs.getTimestamp("Ends").toString();
 			Description = rs.getString("Description").toString();
 		}
-
-
 
 		xmlString += "	<Name>" + forXML(Name) + "</Name>" + "\n";
 
@@ -456,9 +457,13 @@ public class AuctionSearch implements IAuctionSearch {
 			xmlString += "	<Category>" + forXML(rs.getString("Category")) + "</Category>" +"\n";
 		}
 
-		xmlString += "	<Currently>" + forXML(Currently) + "<Currently>" + "\n";
+		xmlString += "	<Currently>" + "$" + forXML(Currently) + "<Currently>" + "\n";
 
-		xmlString += "	<First_Bid>" + forXML(First_Bid) + "</First_Bid>" + "\n";
+		/*if (Buy_Price != "") {
+			xmlString += "	<Currently>" + "$" + forXML(Buy_Price) + "<Currently>" + "\n";
+		} */
+
+		xmlString += "	<First_Bid>" + "$" + forXML(First_Bid) + "</First_Bid>" + "\n";
 
 		xmlString += "	<Number_of_Bids>" + forXML(Number_of_Bids) + "</Number_of_Bids>" + "\n";
 
@@ -467,7 +472,7 @@ public class AuctionSearch implements IAuctionSearch {
 		rs = stmt.executeQuery("SELECT * FROM Bids WHERE ItemID='" + itemId + "'");
 
 		while (rs.next()) {
-			xmlString = BidXMLHelper(xmlString, rs.getString("BidderID"), rs.getTimestamp("Time").toString(),Float.toString(rs.getFloat("Amount")));
+			xmlString = BidXMLHelper(xmlString, rs.getString("BidderID"), rs.getTimestamp("Time").toString(),String.format("%.2f", rs.getFloat("Amount")));
 		}
 		/*
 
@@ -545,7 +550,7 @@ public class AuctionSearch implements IAuctionSearch {
 			xmlString += "				<Country>" + forXML(Country) + "</Country>" + "\n";
 			xmlString += "			</Bidder>" + "\n";
 			xmlString += "			<Time>" + forXML(convertTime(Time)) + "</Time>" + "\n";
-			xmlString += "			<Amount>" + forXML(Amount) + "</Amount>" + "\n";
+			xmlString += "			<Amount>" + "$" + forXML(Amount) + "</Amount>" + "\n";
 			xmlString += "		</Bid>" + "\n";
 
 		} catch (SQLException ex) {};
