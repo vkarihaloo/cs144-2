@@ -206,6 +206,7 @@ public class AuctionSearch implements IAuctionSearch {
 	private String getSQLField(String field)
 	{
 		//gay function
+
 		if (field.equals("SellerId"))
 		{
 			field = "SellerID";

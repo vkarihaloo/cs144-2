@@ -74,6 +74,8 @@ public class Indexer {
  				
  				String itemCats = getCategories(conn, rs.getInt("ItemId"));
  				
+ 				doc.add(new Field("Category", itemCats, Field.Store.YES, Field.Index.TOKENIZED));
+ 				
  				String fullSearchableText = rs.getString("Name") + " " + rs.getString("Description") + " " + itemCats;
 
   			doc.add(new Field("content", fullSearchableText, Field.Store.NO, Field.Index.TOKENIZED));
