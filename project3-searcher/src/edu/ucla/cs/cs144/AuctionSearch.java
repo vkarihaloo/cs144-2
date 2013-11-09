@@ -15,6 +15,9 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+
 import java.util.Date;
 import java.util.Iterator;
 import java.text.SimpleDateFormat;
@@ -44,12 +47,11 @@ public class AuctionSearch implements IAuctionSearch {
          *
          */
 	
-	private IndexSearcher searcher = createIndexSearcher();
+	private IndexSearcher searcher = null;
+	private Connection conn = null;
 	
-	
-	private IndexSearcher createIndexSearcher() 
+	public AuctionSearch()
 	{
-		IndexSearcher searcher = null;
 		try
 		{
 			searcher = new IndexSearcher(System.getenv("LUCENE_INDEX"));
@@ -58,7 +60,15 @@ public class AuctionSearch implements IAuctionSearch {
 		{
 			System.out.println(e);
 		}
-		return searcher;
+		
+		try 
+		{
+	  	conn = DbManager.getConnection(true);
+		} 
+		catch (SQLException ex) 
+		{
+	    System.out.println(ex);
+		}
 		
 	}
 	
@@ -85,13 +95,18 @@ public class AuctionSearch implements IAuctionSearch {
 		
 		try
 		{
-			hits = searcher.search(parsedQuery);
+			hits = searcher.search(parsedQuery, new Sort(new SortField("id", SortField.INT)));
 		}
 		catch (Exception e)
 		{
 			System.out.println(e);
 		}
 
+    
+    if (numResultsToReturn > hits.length())
+    {
+    	numResultsToReturn = hits.length();
+    }
     
     SearchResult[] results = new SearchResult[numResultsToReturn]; 
     
@@ -119,9 +134,101 @@ public class AuctionSearch implements IAuctionSearch {
 	public SearchResult[] advancedSearch(SearchConstraint[] constraints, 
 			int numResultsToSkip, int numResultsToReturn) {
 		// TODO: Your code here!
+		
+		String SQLItemConstraints = "";
+		
+		String SQLBidderConstraints = "";
+		
+		String LuceneConstraints = "";
+
+		
+		for (int i = 0; i < constraints.length; i++)
+		{
+			String currField = constraints[i].getFieldName();
+			String currValue = constraints[i].getValue();
+			
+			if (currField.equals("ItemName") || currField.equals("Category") || currField.equals("Description"))
+			{
+				//lucene search
+				if (LuceneConstraints.equals(""))
+				{
+					LuceneConstraints = currField + ":" + currValue;
+				}
+				else
+				{
+					LuceneConstraints += " AND " + currField + ":" + currValue;
+				}
+			}
+			else if (currField.equals("SellerId") || currField.equals("BuyPrice") || currField.equals("EndTime"))
+			{
+				//mysql items table
+				if (SQLItemConstraints.equals(""))
+				{
+					SQLItemConstraints = getSQLField(currField) + "='" + currValue + "'";
+				}
+				else
+				{
+					SQLItemConstraints += " AND " + getSQLField(currField) + "='" + currValue + "'";
+				}
+				
+			}
+			else if (currField.equals("BidderId"))
+			{
+				//mysql bids table
+				if (SQLBidderConstraints.equals(""))
+				{
+					SQLBidderConstraints = getSQLField(currField) + "='" + currValue + "'";
+				}
+				else
+				{
+					SQLBidderConstraints += " AND " + getSQLField(currField) + "='" + currValue + "'";
+				}
+			}
+		}
+		
+		String fullSQLQuery = null;
+		if (SQLBidderConstraints.equals(""))
+		{
+			fullSQLQuery = "SELECT ItemID, Name from Items WHERE " + SQLItemConstraints;
+		}
+		else
+		{
+			fullSQLQuery = "SELECT ItemID, Name from Items WHERE " + SQLItemConstraints + " AND ItemID in (SELECT ItemID from Bids WHERE " + SQLBidderConstraints;
+		}
+		
+		
+		System.out.println("Lucene: " + LuceneConstraints);
+		System.out.println("MySQL: " + fullSQLQuery);
+		
 		return new SearchResult[0];
 	}
 
+	private String getSQLField(String field)
+	{
+		//gay function
+		if (field.equals("SellerId"))
+		{
+			field = "SellerID";
+		}
+		if (field.equals("BuyPrice"))
+		{
+			field = "Buy_Price";
+		}
+		if (field.equals("BuyPrice"))
+		{
+			field = "Buy_Price";
+		}
+		if (field.equals("EndTime"))
+		{
+			field = "Ends";
+		}
+		if (field.equals("BidderId"))
+		{
+			field = "BidderID";
+		}
+	
+		return field;
+	}
 	public String getXMLDataForItemId(String itemId) {
 		// TODO: Your code here!
 		return null;
