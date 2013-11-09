@@ -15,8 +15,8 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -78,9 +78,263 @@ public class AuctionSearch implements IAuctionSearch {
 			int numResultsToReturn) {
 		// TODO: Your code here!
 		
+		Hits hits = getLuceneResults(query);
+
+    
+    return processResults(hits, numResultsToSkip, numResultsToReturn);
+	}
+
+	public SearchResult[] advancedSearch(SearchConstraint[] constraints, 
+			int numResultsToSkip, int numResultsToReturn) {
+		// TODO: Your code here!
+		
+		String SQLItemConstraints = null;
+		
+		String SQLBidderConstraints = null;
+		
+		String LuceneConstraints = null;
+
+		
+		for (int i = 0; i < constraints.length; i++)
+		{
+			String currField = constraints[i].getFieldName();
+			String currValue = constraints[i].getValue();
+			
+			if (currField.equals("EndTime"))
+			{
+				try
+			  {
+					SimpleDateFormat oldformat = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+					SimpleDateFormat newformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				        
+					currValue = newformat.format(oldformat.parse(currValue));
+				}
+				catch(Exception e)
+				{
+		    	System.out.println("ERROR: Cannot parse");
+				}
+			}
+			
+			if (currField.equals("ItemName") || currField.equals("Category") || currField.equals("Description"))
+			{
+				//lucene search
+				if (LuceneConstraints == null)
+				{
+					LuceneConstraints = currField + ":" + currValue;
+				}
+				else
+				{
+					LuceneConstraints += " AND " + currField + ":" + currValue;
+				}
+			}
+			else if (currField.equals("SellerId") || currField.equals("BuyPrice") || currField.equals("EndTime"))
+			{
+				//mysql items table
+				if (SQLItemConstraints == null)
+				{
+					SQLItemConstraints = getSQLField(currField) + "='" + currValue + "'";
+				}
+				else
+				{
+					SQLItemConstraints += " AND " + getSQLField(currField) + "='" + currValue + "'";
+				}
+				
+			}
+			else if (currField.equals("BidderId"))
+			{
+				//mysql bids table
+				if (SQLBidderConstraints == null)
+				{
+					SQLBidderConstraints = getSQLField(currField) + "='" + currValue + "'";
+				}
+				else
+				{
+					SQLBidderConstraints += " AND " + getSQLField(currField) + "='" + currValue + "'";
+				}
+			}
+		}
+		
+
+		
+		String fullSQLQuery = null;
+		if (SQLItemConstraints != null)
+		{
+			if (SQLBidderConstraints == null)
+			{
+				fullSQLQuery = "SELECT ItemID, Name from Items WHERE " + SQLItemConstraints;
+			}
+			else
+			{
+				fullSQLQuery = "SELECT ItemID, Name from Items WHERE " + SQLItemConstraints + " AND ItemID in (SELECT ItemID from Bids WHERE " + SQLBidderConstraints + ")";
+			}
+		}
+
+
+		ResultSet SQLResults = getSQLResults(fullSQLQuery);
+		Hits luceneResults = getLuceneResults(LuceneConstraints);
+		
+		if (SQLResults != null || luceneResults.length() > 0)
+		{
+			if (SQLResults == null)
+			{
+				//lucene only
+				return processResults(luceneResults, numResultsToSkip, numResultsToReturn);
+			}
+			else if (luceneResults == null)
+			{
+				//mysql only
+				return processResults(SQLResults, numResultsToSkip, numResultsToReturn);
+			}
+			else
+			{
+				//combine lucene and mysql results
+				return combineResults(SQLResults, luceneResults, numResultsToSkip, numResultsToReturn);
+			}
+		}
+		
+		return new SearchResult[0];		//default
+	}
+  
+  private SearchResult[] combineResults(ResultSet rs, Hits hits, int numResultsToSkip, int numResultsToReturn)
+  {
+  	if (numResultsToSkip >= numResultsToReturn)
+		{
+			return new SearchResult[0];
+		}
+		
+  	HashMap<Integer, Integer> IDList = new HashMap<Integer, Integer>();
+  	
+  	try
+  	{
+  		while (rs.next()) 
+			{
+				IDList.put(rs.getInt("ItemID"), 1);
+			}
+  	}
+  	catch (Exception e)
+  	{
+  		System.out.println(e);
+  	}
+  	
+  	ArrayList<SearchResult> temp = new ArrayList<SearchResult>();
+  	
+  	for (int i = 0; i < hits.length(); i++)
+  	{
+  		if (numResultsToReturn <= 0)
+  		{
+  			break;
+  		}
+  		Document doc = null;
+    	try
+    	{
+   			doc = hits.doc(i);
+   		}
+   		catch (Exception e)
+   		{
+   			System.out.println(e);
+   		}
+   		
+   		if (IDList.containsKey(Integer.parseInt(doc.get("ItemId"))))
+   		{
+
+   			if (numResultsToSkip > 0)
+   			{
+   				numResultsToSkip--;
+   				continue;
+   			}
+   			
+   			temp.add(new SearchResult(doc.get("ItemId"), doc.get("ItemName")));
+   			numResultsToReturn--;
+   			
+   		}
+  	}
+  	SearchResult[] finalResults = new SearchResult[temp.size()];
+		finalResults = temp.toArray(finalResults);
+		
+		return finalResults;
+  }
+  
+	private SearchResult[] processResults(ResultSet rs, int numResultsToSkip, int numResultsToReturn)
+	{
+		if (numResultsToSkip >= numResultsToReturn)
+		{
+			return new SearchResult[0];
+		}
+		
+		ArrayList<SearchResult> temp = new ArrayList<SearchResult>();
+		
+		int skipcounter = 1;
+		
+		try
+		{
+			while (rs.next()) 
+			{
+				if (numResultsToReturn == 0)
+				{
+					break;
+				}
+				if (skipcounter < numResultsToSkip)
+				{
+					skipcounter++;
+					continue;
+				}
+				temp.add(new SearchResult(Integer.toString(rs.getInt("ItemID")), rs.getString("Name")));
+				numResultsToReturn--;
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println(e);
+		}
+		
+		SearchResult[] finalResults = new SearchResult[temp.size()];
+		finalResults = temp.toArray(finalResults);
+		
+		return finalResults;
+		
+	}
+	
+	private SearchResult[] processResults(Hits hits, int numResultsToSkip, int numResultsToReturn)
+	{
+		if (numResultsToSkip >= numResultsToReturn)
+		{
+			return new SearchResult[0];
+		}
+		
+		ArrayList<SearchResult> temp = new ArrayList<SearchResult>();
+		
+    
+    for(int i = numResultsToSkip; i < hits.length(); i++) 
+    {
+    	Document doc = null;
+    	try
+    	{
+   			doc = hits.doc(i);
+   		}
+   		catch (Exception e)
+   		{
+   			System.out.println(e);
+   		}
+   		temp.add(new SearchResult(doc.get("ItemId"), doc.get("ItemName")));
+			
+ 		}
+		SearchResult[] finalResults = new SearchResult[temp.size()];
+		finalResults = temp.toArray(finalResults);
+		
+		return finalResults;
+	}
+	
+	private Hits getLuceneResults(String query)
+	{
+		if (query == null)
+		{
+			return null;
+		}
+		
 		QueryParser parser = new QueryParser("content", new StandardAnalyzer());
 		
 		Query parsedQuery = null;
+		
 		
 		try
 		{
@@ -95,114 +349,37 @@ public class AuctionSearch implements IAuctionSearch {
 		
 		try
 		{
-			hits = searcher.search(parsedQuery, new Sort(new SortField("id", SortField.INT)));
+			hits = searcher.search(parsedQuery);
 		}
 		catch (Exception e)
 		{
 			System.out.println(e);
 		}
-
-    
-    if (numResultsToReturn > hits.length())
-    {
-    	numResultsToReturn = hits.length();
-    }
-    
-    SearchResult[] results = new SearchResult[numResultsToReturn]; 
-    
-    int count = 0;
-    
-    for(int i = numResultsToSkip; i < numResultsToSkip + numResultsToReturn; i++) 
-    {
-    	Document doc = null;
-    	try
-    	{
-   			doc = hits.doc(i);
-   		}
-   		catch (Exception e)
-   		{
-   			System.out.println(e);
-   		}
-   		SearchResult currResult = new SearchResult(doc.get("id"), doc.get("name"));
-			
-			results[count] = currResult;
-			count++;
- 		}
-		return results;
+		
+		return hits;
 	}
-
-	public SearchResult[] advancedSearch(SearchConstraint[] constraints, 
-			int numResultsToSkip, int numResultsToReturn) {
-		// TODO: Your code here!
-		
-		String SQLItemConstraints = "";
-		
-		String SQLBidderConstraints = "";
-		
-		String LuceneConstraints = "";
-
-		
-		for (int i = 0; i < constraints.length; i++)
+	
+	private ResultSet getSQLResults(String query) 
+	{
+		if (query == null)
 		{
-			String currField = constraints[i].getFieldName();
-			String currValue = constraints[i].getValue();
-			
-			if (currField.equals("ItemName") || currField.equals("Category") || currField.equals("Description"))
-			{
-				//lucene search
-				if (LuceneConstraints.equals(""))
-				{
-					LuceneConstraints = currField + ":" + currValue;
-				}
-				else
-				{
-					LuceneConstraints += " AND " + currField + ":" + currValue;
-				}
-			}
-			else if (currField.equals("SellerId") || currField.equals("BuyPrice") || currField.equals("EndTime"))
-			{
-				//mysql items table
-				if (SQLItemConstraints.equals(""))
-				{
-					SQLItemConstraints = getSQLField(currField) + "='" + currValue + "'";
-				}
-				else
-				{
-					SQLItemConstraints += " AND " + getSQLField(currField) + "='" + currValue + "'";
-				}
-				
-			}
-			else if (currField.equals("BidderId"))
-			{
-				//mysql bids table
-				if (SQLBidderConstraints.equals(""))
-				{
-					SQLBidderConstraints = getSQLField(currField) + "='" + currValue + "'";
-				}
-				else
-				{
-					SQLBidderConstraints += " AND " + getSQLField(currField) + "='" + currValue + "'";
-				}
-			}
+			return null;
 		}
-		
-		String fullSQLQuery = null;
-		if (SQLBidderConstraints.equals(""))
+		Statement stmt = null;  
+		ResultSet rs = null;
+	  try 
+	  {
+	  	stmt = conn.createStatement();
+	 		rs = stmt.executeQuery(query);
+	 	}
+	 	catch (SQLException ex) 
 		{
-			fullSQLQuery = "SELECT ItemID, Name from Items WHERE " + SQLItemConstraints;
-		}
-		else
-		{
-			fullSQLQuery = "SELECT ItemID, Name from Items WHERE " + SQLItemConstraints + " AND ItemID in (SELECT ItemID from Bids WHERE " + SQLBidderConstraints;
-		}
-		
-		
-		System.out.println("Lucene: " + LuceneConstraints);
-		System.out.println("MySQL: " + fullSQLQuery);
-		
-		return new SearchResult[0];
+    	System.err.println("SQLException: " + ex.getMessage());
+		} 
+	 	
+	 	return rs;
 	}
-
+	
 	private String getSQLField(String field)
 	{
 		//gay function

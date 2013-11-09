@@ -68,7 +68,7 @@ public class Indexer {
 			while (rs.next()) 
 			{
 				Document doc = new Document();
-  			doc.add(new Field("ItemId", Integer.toString(rs.getInt("ItemId")), Field.Store.YES, Field.Index.NO));
+  			doc.add(new Field("ItemId", Integer.toString(rs.getInt("ItemID")), Field.Store.YES, Field.Index.NO));
   			doc.add(new Field("ItemName", rs.getString("Name"), Field.Store.YES, Field.Index.TOKENIZED));
   			doc.add(new Field("Description", rs.getString("Description"), Field.Store.YES, Field.Index.TOKENIZED));
  				
