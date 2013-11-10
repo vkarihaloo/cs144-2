@@ -202,9 +202,9 @@ public class AuctionSearch implements IAuctionSearch {
   
   private SearchResult[] combineResults(ResultSet rs, Hits hits, int numResultsToSkip, int numResultsToReturn)
   {
-  	if (numResultsToSkip >= numResultsToReturn)
+  	if (numResultsToReturn == 0)
 		{
-			return new SearchResult[0];
+			numResultsToReturn = 999999;
 		}
 		
   	HashMap<Integer, Integer> IDList = new HashMap<Integer, Integer>();
@@ -225,6 +225,7 @@ public class AuctionSearch implements IAuctionSearch {
   	
   	for (int i = 0; i < hits.length(); i++)
   	{
+  		
   		if (numResultsToReturn <= 0)
   		{
   			break;
@@ -261,9 +262,10 @@ public class AuctionSearch implements IAuctionSearch {
   
 	private SearchResult[] processResults(ResultSet rs, int numResultsToSkip, int numResultsToReturn)
 	{
-		if (numResultsToSkip >= numResultsToReturn)
+		
+		if (numResultsToReturn == 0)
 		{
-			return new SearchResult[0];
+			numResultsToReturn = 999999;		//big number since i dont know how to get sizeof ResultSet
 		}
 		
 		ArrayList<SearchResult> temp = new ArrayList<SearchResult>();
@@ -274,7 +276,8 @@ public class AuctionSearch implements IAuctionSearch {
 		{
 			while (rs.next()) 
 			{
-				if (numResultsToReturn == 0)
+				
+				if (numResultsToReturn <= 0)
 				{
 					break;
 				}
@@ -301,9 +304,15 @@ public class AuctionSearch implements IAuctionSearch {
 	
 	private SearchResult[] processResults(Hits hits, int numResultsToSkip, int numResultsToReturn)
 	{
-		if (numResultsToSkip >= numResultsToReturn)
+		
+		if (numResultsToSkip > hits.length())
 		{
 			return new SearchResult[0];
+		}
+		
+		if (numResultsToReturn == 0)
+		{
+			numResultsToReturn = hits.length();
 		}
 		
 		ArrayList<SearchResult> temp = new ArrayList<SearchResult>();
@@ -311,6 +320,10 @@ public class AuctionSearch implements IAuctionSearch {
     
     for(int i = numResultsToSkip; i < hits.length(); i++) 
     {
+    	if (numResultsToReturn <= 0)
+			{
+				break;
+			}
     	Document doc = null;
     	try
     	{
@@ -321,6 +334,7 @@ public class AuctionSearch implements IAuctionSearch {
    			System.out.println(e);
    		}
    		temp.add(new SearchResult(doc.get("ItemId"), doc.get("ItemName")));
+   		numResultsToReturn--;
 			
  		}
 		SearchResult[] finalResults = new SearchResult[temp.size()];
