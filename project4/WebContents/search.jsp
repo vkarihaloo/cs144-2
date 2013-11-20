@@ -22,9 +22,12 @@
 		
 		for(SearchResult result : basicResults) 
 		{
+			if (!result.getItemId().equals("-1"))
+			{
 		%>
-			<%= result.getItemId() + ": " + result.getName() %> <br /><br />
+			<a href="/eBay/item?id=<%= result.getItemId() %>" > <%= result.getItemId() + ": " + result.getName() %> </a> <br /><br />
 		<%
+			}
 		}		
 		%>
 
