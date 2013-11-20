@@ -51,8 +51,8 @@
 		<%= "Bidder Rating: " + BidRating[i]%> <br />
 		<%= "Bidder Location: " + BidLocation[i] %> <br />
 		<%= "Bidder Country: " + BidCountry[i] %> <br />
-		<%= "Bidder Time: " + BidTime[i] %> <br />
-		<%= "Bidder Amount: " + BidAmount[i] %> <br /> 
+		<%= "Bid Time: " + BidTime[i] %> <br />
+		<%= "Bid Amount: " + BidAmount[i] %> <br /> 
 		<br />
 		<%
 		}		

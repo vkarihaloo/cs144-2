@@ -59,7 +59,11 @@ public class ItemServlet extends HttpServlet implements Servlet {
     		//temp = doc.getDocumentElement().getNodeName();
     		Name = doc.getElementsByTagName("Name").item(0).getTextContent();
     		Currently = doc.getElementsByTagName("Currently").item(0).getTextContent();
-    		Buy_Price = doc.getElementsByTagName("Buy_Price").item(0).getTextContent();
+    		
+    		if (doc.getElementsByTagName("Buy_Price").getLength() != 0) {
+    			Buy_Price = doc.getElementsByTagName("Buy_Price").item(0).getTextContent();
+    		}
+    		
     		First_Bid = doc.getElementsByTagName("First_Bid").item(0).getTextContent();
     		Number_of_Bids = doc.getElementsByTagName("Number_of_Bids").item(0).getTextContent();
     		Started = doc.getElementsByTagName("Started").item(0).getTextContent();
