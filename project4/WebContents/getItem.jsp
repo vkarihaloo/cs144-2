@@ -2,7 +2,11 @@
 <%@ page import="javax.xml.parsers.DocumentBuilderFactory" %>
 <%@ page import="javax.xml.parsers.DocumentBuilder" %>
 
-
+<form action="/eBay/item">
+	Enter Id: <input type="text" name="id" /> <br />
+	<input type="submit" />
+</form>
+		
 <p>Name: <%= request.getAttribute("Name") %></p>
 
 
