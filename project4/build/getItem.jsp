@@ -67,7 +67,6 @@
 <p>Country: <%= BidCountry[BidCountry.length-1] %></p>
 
 <% String geoLocation = BidLocation[BidLocation.length-1] + ", " + BidCountry[BidCountry.length-1]; %>
-<%= geoLocation %>
 
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" /> 
 <style type="text/css"> 
@@ -85,7 +84,6 @@
 
   	geocoder = new google.maps.Geocoder();
   	var address = "<%=geoLocation%>";
-  	alert(address);
     geocoder.geocode( { 'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
       	var myOptions = {
