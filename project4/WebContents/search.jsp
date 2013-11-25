@@ -6,11 +6,24 @@
 %>
 
 <html>
+	<head>
+		<script type="text/javascript" src="autosuggest.js"></script>
+		<link rel="stylesheet" type="text/css" href="autosuggest.css" />    
+		<script type="text/javascript">
+
+    	window.onload = function () {
+    		
+				var oTextbox = new AutoSuggestControl(document.getElementById("qbox"));        
+      }
+		</script>	
+		
+		
+	</head>	
 	<body>
 		
 		<form action="/eBay/search">
 			
-			Keywords: <input type="text" name="q" value="<%= query %>" /> 
+			Keywords: <input type="text" name="q" id="qbox" value="<%= query %>" autocomplete="off" style="width:500px;"/> 
 			
 			<input type="hidden" name="numResultsToSkip" value="0" />
 			<input type="hidden" name="numResultsToReturn" value="11" />
@@ -34,44 +47,45 @@
 		
 		if (count > 0)
 		{
+			
+			if (!basicResults[0].getItemId().equals("-1"))
+			{
 		%>
 		
 		<p> Showing Results <%= numSkip+1 %> to <%= numSkip+count %></p>
 		
 		<%
-
-			count = 0;
-		
-			for(SearchResult result : basicResults) 
-			{
-				if (count == 10)
+				count = 0;
+				for (SearchResult result : basicResults) 
 				{
-					break;
-				}
-				if (!result.getItemId().equals("-1"))
-				{
+					if (count == 10)
+					{
+						break;
+					}
 		%>
 				<a href="/eBay/item?id=<%= result.getItemId() %>" > <%= result.getItemId() + ": " + result.getName() %> </a> <br /><br />
 		<%
 					count++;
-				}
-			}		
+				}		
+			}
 		%>
 		
 		<br />
 		<% 
 				if (numSkip > 0)
 				{
-					%> <a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip-10 %>&numResultsToReturn=11">Previous Page</a>
+					%> 
+					<a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip-10 %>&numResultsToReturn=11">Previous Page</a>
 					<%
 				}
 
 				if (basicResults.length - 10 > 0)
 				{
-					%> <a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip+10 %>&numResultsToReturn=11">Next Page</a>
+					%> 
+					<a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip+10 %>&numResultsToReturn=11">Next Page</a>
 					<%
 				}
-		}
+		} 
 		%>	
 
 
