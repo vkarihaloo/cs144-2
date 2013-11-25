@@ -74,13 +74,15 @@
 		<% 
 				if (numSkip > 0)
 				{
-					%> <a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip-10 %>&numResultsToReturn=11">Previous Page</a>
+					%> 
+					<a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip-10 %>&numResultsToReturn=11">Previous Page</a>
 					<%
 				}
 
 				if (basicResults.length - 10 > 0)
 				{
-					%> <a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip+10 %>&numResultsToReturn=11">Next Page</a>
+					%> 
+					<a href="/eBay/search?q=<%= query %>&numResultsToSkip=<%= numSkip+10 %>&numResultsToReturn=11">Next Page</a>
 					<%
 				}
 		} 

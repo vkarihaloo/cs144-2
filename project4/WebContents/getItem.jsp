@@ -2,14 +2,20 @@
 <%@ page import="javax.xml.parsers.DocumentBuilderFactory" %>
 <%@ page import="javax.xml.parsers.DocumentBuilder" %>
 
+
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="getItem.css" />   
+</head>
+
+<body onload="initialize()"> 
 <form action="/eBay/item">
-	Enter Id: <input type="text" name="id" /> <br />
+	Search Another ItemId: <input type="text" name="id" /> <br />
 	<input type="submit" />
 </form>
+
 		
-<p>Name: <%= request.getAttribute("Name") %></p>
-
-
+<h1><%= request.getAttribute("Name") %></h1>
 
 <p>Categories: 
 <% String[] Categories = (String[]) request.getAttribute("Categories");
@@ -31,7 +37,15 @@
 		%>
 </p>
 <p>Currently: <%= request.getAttribute("Currently") %></p>
-<p>Buy Price: <%= request.getAttribute("Buy_Price") %></p>
+
+<% if (request.getAttribute("Buy_Price") != "")
+{
+%>
+	<p>Buy Price: <%= request.getAttribute("Buy_Price") %></p>
+<%
+} 
+%>
+
 <p>First Bid: <%= request.getAttribute("First_Bid") %></p>
 <p>Number of Bids: <%= request.getAttribute("Number_of_Bids") %></p>
 <p>Started: <%= request.getAttribute("Started") %></p>
@@ -69,12 +83,6 @@
 <% String geoLocation = BidLocation[BidLocation.length-1] + ", " + BidCountry[BidCountry.length-1]; %>
 
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" /> 
-<style type="text/css"> 
-  html { height: 100% } 
-  body { height: 100%; margin: 0px; padding: 0px } 
-  #map_canvas { height: 100% } 
-</style> 
-
 
 <script type="text/javascript" 
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvrGK52FxBndfyWYPBfV0LoQqMss2xMjE&sensor=false"> 
@@ -98,7 +106,7 @@
             position: results[0].geometry.location
         });
       } else {
-        alert("Geocode was not successful for the following reason: " + status);
+        //alert("Geocode was not successful for the following reason: " + status);
       }
     });
 
@@ -107,6 +115,7 @@
 
 </script> 
 
-<body onload="initialize()"> 
-  <div id="map_canvas" style="width:50%; height:50%"></div> 
+
+<div id="map_canvas" style="width:500px; height:400px"></div> 
 </body>
+</html>
