@@ -10,11 +10,13 @@
 
 <body onload="initialize()"> 
 <form action="/eBay/item">
-	Search Another ItemId: <input type="text" name="id" /> <br />
+	Search An ItemId: <input type="text" name="id" /> <br />
 	<input type="submit" />
 </form>
 
-		
+<hr>
+
+<div id="leftcolumn">		
 <h1><%= request.getAttribute("Name") %></h1>
 
 <p>Categories: 
@@ -51,8 +53,14 @@
 <p>Started: <%= request.getAttribute("Started") %></p>
 <p>Seller UserID: <%= request.getAttribute("Seller_UID") %></p>
 <p>Seller Rating: <%= request.getAttribute("Seller_Rating") %></p>
-<p>Description: <%= request.getAttribute("Description") %></p>
 
+<% if (request.getAttribute("Description") != "")
+{
+%>
+	<p>Description: <%= request.getAttribute("Description") %></p>
+<%
+} 
+%>
 <p>
 <% String[] BidUID = (String[]) request.getAttribute("BidUID");
 	String[] BidRating = (String[]) request.getAttribute("BidRating");
@@ -63,20 +71,44 @@
 		
 		for(int i = 0; i < BidUID.length; i++) 
 		{
+		if (i == 0) {
 		%>
-		<%= "Bid #" + (i+1) %> <br />
-		<%= "Bidder UserID: " + BidUID[i]%> <br />
-		<%= "Bidder Rating: " + BidRating[i]%> <br />
-		<%= "Bidder Location: " + BidLocation[i] %> <br />
-		<%= "Bidder Country: " + BidCountry[i] %> <br />
-		<%= "Bid Time: " + BidTime[i] %> <br />
-		<%= "Bid Amount: " + BidAmount[i] %> <br /> 
-		<br />
+		<table border="1" cellpadding="5">
+			<tr>
+				<th>Bid #</th>
+				<th>UserID </th>
+				<th>Rating </th>
+				<th>Location </th>
+				<th>Country </th>
+				<th>Time </th>
+				<th>Amount </th>
+			</tr>
+		<%
+	}
+		%>
+		<tr> 
+			<td><%= i+1 %></td> 
+			<td><%= BidUID[i]%></td>
+			<td><%= BidRating[i]%></td>
+			<td><%= BidLocation[i] %></td>
+			<td><%= BidCountry[i] %></td>
+			<td><%= BidTime[i] %></td>
+			<td><%= BidAmount[i] %></td>
+		</tr>
+		<% if (i == (BidUID.length-1)) { %>
+		</table>
+	
+		<%
+		}
+		%>	
+
 		<%
 		}		
 		%>
 </p>
+</div>
 
+<div id="rightcolumn">
 <p>Location: <%= BidLocation[BidLocation.length-1] %></p>
 <p>Country: <%= BidCountry[BidCountry.length-1] %></p>
 
@@ -114,8 +146,9 @@
   } 
 
 </script> 
-
-
 <div id="map_canvas" style="width:500px; height:400px"></div> 
+</div>
+
+</div>
 </body>
 </html>

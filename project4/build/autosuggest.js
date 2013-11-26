@@ -49,7 +49,7 @@ AutoSuggestControl.prototype.autosuggest = function (oThis) {
 	     {
 	     		var aSuggestions = [];
 				  // get the CompleteSuggestion elements from the response
-				  var s = oThis.xmlHttp.responseXML.getElementsByTagName('CompleteSuggestion');
+			       var s = oThis.xmlHttp.responseXML.getElementsByTagName('CompleteSuggestion');
 				 
 				  // construct a suggestion array
 				  for (i = 0; i < s.length; i++) 
