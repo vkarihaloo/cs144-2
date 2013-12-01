@@ -1,0 +1,13 @@
+#leftcolumn {
+	float: left;
+	width: 60%;
+}
+
+#rightcolumn {
+	float: right;
+	width: 37%;
+}
+
+table {
+	text-align:center;
+}
