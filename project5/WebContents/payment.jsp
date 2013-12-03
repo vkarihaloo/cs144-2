@@ -13,7 +13,7 @@
     	<input type="hidden" name="action" value="confirm" />
     	Enter Credit Card #: <input type="text" name="cc" /> <br />
     	
-    	<input type="submit" value="Submit Payment" />
+    	<input type="submit" value="Submit" />
     </form>
 		
 	</body>

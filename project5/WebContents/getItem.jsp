@@ -44,7 +44,7 @@
 {
 %> <form action="/eBay/buy">
 		<p>Buy Price: <%= request.getAttribute("Buy_Price") %></p> 
-		<input type="submit" value="Buy Now" />
+		<input type="submit" value="Pay Now" />
 	 </form>
 	
 <%
@@ -54,6 +54,7 @@
 <p>First Bid: <%= request.getAttribute("First_Bid") %></p>
 <p>Number of Bids: <%= request.getAttribute("Number_of_Bids") %></p>
 <p>Started: <%= request.getAttribute("Started") %></p>
+<p>Ends: <%= request.getAttribute("Ends") %></p>
 <p>Seller UserID: <%= request.getAttribute("Seller_UID") %></p>
 <p>Seller Rating: <%= request.getAttribute("Seller_Rating") %></p>
 

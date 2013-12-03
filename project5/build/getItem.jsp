@@ -54,6 +54,7 @@
 <p>First Bid: <%= request.getAttribute("First_Bid") %></p>
 <p>Number of Bids: <%= request.getAttribute("Number_of_Bids") %></p>
 <p>Started: <%= request.getAttribute("Started") %></p>
+<p>Ends: <%= request.getAttribute("Ends") %></p>
 <p>Seller UserID: <%= request.getAttribute("Seller_UID") %></p>
 <p>Seller Rating: <%= request.getAttribute("Seller_Rating") %></p>
 

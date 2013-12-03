@@ -44,6 +44,7 @@ public class ItemServlet extends HttpServlet implements Servlet {
 				String Seller_UID = "";
 				String Seller_Rating = ""; 
 				String Description = "";
+                String Ends = "";
 				NodeList nlist;
 				NodeList sellerlist;
 				String[] Categories;
@@ -69,6 +70,7 @@ public class ItemServlet extends HttpServlet implements Servlet {
     		First_Bid = doc.getElementsByTagName("First_Bid").item(0).getTextContent();
     		Number_of_Bids = doc.getElementsByTagName("Number_of_Bids").item(0).getTextContent();
     		Started = doc.getElementsByTagName("Started").item(0).getTextContent();
+            Ends = doc.getElementsByTagName("Ends").item(0).getTextContent();
     		NodeList SellerList = doc.getElementsByTagName("Seller");
     		Node sellernode = SellerList.item(0);
     		Element sellerelement = (Element) sellernode;
@@ -127,6 +129,7 @@ public class ItemServlet extends HttpServlet implements Servlet {
 				request.setAttribute("First_Bid", First_Bid);
 				request.setAttribute("Number_of_Bids", Number_of_Bids);
 				request.setAttribute("Started", Started);
+                request.setAttribute("Ends", Ends);
 				request.setAttribute("Seller_UID", Seller_UID);
 				request.setAttribute("Seller_Rating", Seller_Rating);
 				request.setAttribute("Description", Description);
