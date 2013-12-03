@@ -10,6 +10,8 @@ import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
 import java.util.Date;
 
+import java.util.HashMap;
+
 public class BuyServlet extends HttpServlet implements Servlet {
        
   public BuyServlet() {}
@@ -25,23 +27,42 @@ public class BuyServlet extends HttpServlet implements Servlet {
 	  	{
 	  		if (request.isSecure())
 	  		{
+	  			String id = request.getParameter("id");
+
 		  		HttpSession session = request.getSession(true);
-		  		request.setAttribute("Name", (String)session.getAttribute("itemName"));
-					request.setAttribute("ID", (String)session.getAttribute("itemId"));
-					request.setAttribute("BuyPrice", (String)session.getAttribute("itemPrice"));
+		  		String currItem = (String)session.getAttribute("currentItemBeingPurchased");
+		  		if (currItem.equals(id))
+		  		{
+		  			HashMap<String, String[]> tempmap = (HashMap<String, String[]>)session.getAttribute("itemMap");
+		  			String[] values = (String[])tempmap.get(id);
+			  		request.setAttribute("Name", values[0]);
+					request.setAttribute("ID", id);
+					request.setAttribute("BuyPrice", values[1]);
+
 					request.setAttribute("CC", request.getParameter("cc"));
 					request.setAttribute("Time", new Date());
 					request.getRequestDispatcher("/confirm.jsp").forward(request, response);
 				}
+			}
 	  	}
   	}
   	catch (Exception e)
   	{
+  		String id = request.getParameter("id");
 	  	HttpSession session = request.getSession(true);
-	  	request.setAttribute("Name", (String)session.getAttribute("itemName"));
-			request.setAttribute("ID", (String)session.getAttribute("itemId"));
-			request.setAttribute("BuyPrice", (String)session.getAttribute("itemPrice"));
+
+	  	session.setAttribute("currentItemBeingPurchased", id);
+
+	  	HashMap<String, String[]> tempmap = (HashMap<String, String[]>)session.getAttribute("itemMap");
+	  	if (tempmap.containsKey(id)) {
+	  		String[] values = (String[])tempmap.get(id);
+	  		request.setAttribute("Name", values[0]);
+			request.setAttribute("ID", id);
+			request.setAttribute("BuyPrice", values[1]);
 			request.getRequestDispatcher("/payment.jsp").forward(request, response);
+	  	}
+
+	  	
 		}
   }
   

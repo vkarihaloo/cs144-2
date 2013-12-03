@@ -21,6 +21,8 @@ import java.io.StringReader;
 
 import javax.servlet.http.HttpSession;
 
+import java.util.HashMap;
+
 public class ItemServlet extends HttpServlet implements Servlet {
        
     public ItemServlet() {}
@@ -123,6 +125,7 @@ public class ItemServlet extends HttpServlet implements Servlet {
     			BidAmount[i] = tempList.item(i).getTextContent();
     		}
 
+            request.setAttribute("ItemID", queryId);
     		request.setAttribute("Name", Name);
 				request.setAttribute("Currently", Currently);
 				request.setAttribute("Buy_Price", Buy_Price);
@@ -141,13 +144,28 @@ public class ItemServlet extends HttpServlet implements Servlet {
 				request.setAttribute("BidTime", BidTime);
 				request.setAttribute("BidAmount", BidAmount);
 				
+
 				if (!Buy_Price.equals(""))
 				{
 					//add item info to the session
-					HttpSession session = request.getSession(true);
-					session.setAttribute("itemId", queryId); 
-					session.setAttribute("itemName", Name); 
-					session.setAttribute("itemPrice", Buy_Price); 
+                HttpSession session = request.getSession(true);
+
+                HashMap<String, String[]> map;
+
+                if (session.getAttribute("itemMap") == null) {
+                    map = new HashMap<String, String[]>();
+                }
+                else {
+                    map = (HashMap<String, String[]>)session.getAttribute("itemMap");
+                }
+
+                if (!map.containsKey(queryId)) {
+                    String[] mapvalue = new String[2];
+                    mapvalue[0] = Name;
+                    mapvalue[1] = Buy_Price;
+                    map.put(queryId, mapvalue);
+                    session.setAttribute("itemMap", map);
+                    }
 				}
 				
     		request.getRequestDispatcher("/getItem.jsp").forward(request, response);

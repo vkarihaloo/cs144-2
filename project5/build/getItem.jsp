@@ -44,7 +44,9 @@
 {
 %> <form action="/eBay/buy">
 		<p>Buy Price: <%= request.getAttribute("Buy_Price") %></p> 
-		<input type="submit" value="Buy Now" />
+
+		<input type="hidden" name="id" value="<%= request.getAttribute("ItemID") %>" />
+		<input type="submit" value="Pay Now" />
 	 </form>
 	
 <%

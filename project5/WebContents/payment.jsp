@@ -10,6 +10,7 @@
     	<p>Item Name: <%= request.getAttribute("Name") %></p> 
     	<p>Buy Price: <%= request.getAttribute("BuyPrice") %></p> <br />
     	
+        <input type="hidden" name="id" value="<%= request.getAttribute("ID") %>" />
     	<input type="hidden" name="action" value="confirm" />
     	Enter Credit Card #: <input type="text" name="cc" /> <br />
     	
