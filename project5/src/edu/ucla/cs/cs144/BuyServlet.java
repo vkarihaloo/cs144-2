@@ -30,20 +30,19 @@ public class BuyServlet extends HttpServlet implements Servlet {
 	  			String id = request.getParameter("id");
 
 		  		HttpSession session = request.getSession(true);
-		  		String currItem = (String)session.getAttribute("currentItemBeingPurchased");
-		  		if (currItem.equals(id))
+		  		HashMap<String, String[]> tempmap = (HashMap<String, String[]>)session.getAttribute("itemMap");
+		  		if (tempmap.containsKey(id))
 		  		{
-		  			HashMap<String, String[]> tempmap = (HashMap<String, String[]>)session.getAttribute("itemMap");
 		  			String[] values = (String[])tempmap.get(id);
 			  		request.setAttribute("Name", values[0]);
-					request.setAttribute("ID", id);
-					request.setAttribute("BuyPrice", values[1]);
+						request.setAttribute("ID", id);
+						request.setAttribute("BuyPrice", values[1]);
 
-					request.setAttribute("CC", request.getParameter("cc"));
-					request.setAttribute("Time", new Date());
-					request.getRequestDispatcher("/confirm.jsp").forward(request, response);
+						request.setAttribute("CC", request.getParameter("cc"));
+						request.setAttribute("Time", new Date());
+						request.getRequestDispatcher("/confirm.jsp").forward(request, response);
+					}
 				}
-			}
 	  	}
   	}
   	catch (Exception e)
