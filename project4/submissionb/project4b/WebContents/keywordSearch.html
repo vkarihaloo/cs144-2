@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<script type="text/javascript" src="autosuggest.js"></script>
+		<link rel="stylesheet" type="text/css" href="autosuggest.css" />    
+		<script type="text/javascript">
+
+    	window.onload = function () {
+    		
+				var oTextbox = new AutoSuggestControl(document.getElementById("qbox"));        
+      }
+		</script>	
+		
+		
+	</head>
+    <body>
+    	<h1>Keyword Search Page</h1>
+    	
+    	<form action="/eBay/search">
+    		Enter Query: <input type="text" name="q" id="qbox" autocomplete="off" style="width:500px;"/> <br />
+    		
+    		<input type="hidden" name="numResultsToSkip" value="0" />
+				<input type="hidden" name="numResultsToReturn" value="11" />
+    		
+    		<br />
+    		<input type="submit" />
+    	</form>
+    	
+    </body>
+</html>
